@@ -1,0 +1,10 @@
+﻿  main.c
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(221,35): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(221,47): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(222,41): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(222,56): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(222,71): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\main.c(222,92): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
+  RIVER-INF.vcxproj -> C:\Users\GGuui\OneDrive\Área de Trabalho\trabalho\RIVER-INF\x64\Debug\RIVER-INF.exe
+  'pwsh.exe' não é reconhecido como um comando interno
+  ou externo, um programa operável ou um arquivo em lotes.

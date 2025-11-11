@@ -5,3 +5,4 @@ Release/
 *.exe
 *.obj
 RIVER-INF/
+.vs/

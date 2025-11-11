@@ -1,0 +1,8 @@
+x64/
+Win32/
+Debug/
+Release/
+*.exe
+*.obj
+RIVER-INF/
+.vs/

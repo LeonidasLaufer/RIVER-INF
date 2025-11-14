@@ -3,5 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/Itens de Solução/" />
   <Project Path="RIVER-INF.vcxproj" Id="065ca620-877c-4be5-84a0-cc96327647fb" />
 </Solution>

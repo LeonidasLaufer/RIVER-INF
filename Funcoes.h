@@ -11,7 +11,7 @@ typedef struct {
 	int vidas;
 } Jogador;
 
-typedef struct {
+typedef struct {	
 	int x;
 	int y;
 	bool ativo;
@@ -36,7 +36,7 @@ typedef struct {
 
 #define LARG_INIMIGO 20
 #define ALT_INIMIGO 20
-#define VEL_INIMIGO 1
+#define VEL_INIMIGO 2
 #define MAX_INIMIGOS 5
 
 #define LARG_TIRO 5

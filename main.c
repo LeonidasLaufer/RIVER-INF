@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "Map.h"
 
 Spawnpoint teste_1[MAX_INIMIGOS] =
 {
@@ -12,11 +13,12 @@ Spawnpoint teste_1[MAX_INIMIGOS] =
   {500, -50}
 };
 
-
+	
 int main() {
-	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
+	Jogador jogador = { LARGURA / 2, ALTURA - 100 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
 	Tiro tiros[MAX_TIROS]; //Cria array de tiros
 	Inimigo inimigos[MAX_INIMIGOS];
+	Map mapa;
 
 	bool jogoAtivo = false;
 	bool sair = false;
@@ -26,6 +28,7 @@ int main() {
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
 	spawnaInimigos(inimigos, teste_1); // Inicializa inimigos
+	inicializaMapa(&mapa); // Inicializa mapa
 
 
 	while (!WindowShouldClose() && !sair) // Enquanto o ESC e o botão de sair nao forem pressionados
@@ -49,7 +52,6 @@ int main() {
 				sair = true; // Sai caso ENTER tenha sido pressionado, e caso cursor esteja em Sair
 			}
 
-
 			BeginDrawing();
 			ClearBackground(SKYBLUE);
 			menu(op); // Desenha o menu
@@ -59,6 +61,7 @@ int main() {
 		{
 			if (jogador.vidas != 0) // Caso jogo tenha começado
 			{
+				atualizaMapa(&mapa);
 				atualizaTiros(tiros); // Atualiza posição e estado dos tiros a cada iteração
 				atualizaInimigos(inimigos); // Atualiza posição e estado dos inimigos a cada iteração
 				checaColisoesTiro(tiros, inimigos); // Checa colisões entre tiros e inimigos
@@ -88,9 +91,10 @@ int main() {
 				}
 
 				
-				BeginDrawing(); 
-				ClearBackground(RAYWHITE); 
-				DrawRectangle(jogador.x, jogador.y, jogador.largura, jogador.altura, BLUE); //Desenha o jogador na tela
+				BeginDrawing();
+				ClearBackground(BLUE);
+				desenhaMapa(&mapa); // Desenha o mapa na tela
+				DrawRectangle(jogador.x, jogador.y, jogador.largura, jogador.altura, RED); //Desenha o jogador na tela
 				desenhaTiros(tiros); // Desenha o tiro na tela
 				desenhaInimigos(inimigos); // Desenha os inimigos na tela
 				EndDrawing(); 

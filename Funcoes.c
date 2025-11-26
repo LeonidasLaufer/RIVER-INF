@@ -1,26 +1,67 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "Funcoes.h"
 #include "raylib.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void menu(int op)
 {
-	DrawText("Novo Jogo", LARGURA / 4, ALTURA / 3 - 20, 60, RAYWHITE);
-	DrawText("Ranking", LARGURA / 4, ALTURA / 2 - 20, 60, RAYWHITE);
-	DrawText("Sair", LARGURA / 4, ALTURA / 1.5 - 20, 60, RAYWHITE);
+	int larguraTexto;
+	int t_fonte = 70;
+
+	larguraTexto = MeasureText("Novo Jogo", t_fonte);
+	DrawText("Novo Jogo", LARGURA / 4 + 50 , ALTURA / 3 - 20, t_fonte, RAYWHITE);
+
+	larguraTexto = MeasureText("Ranking", t_fonte);
+	DrawText("Ranking", LARGURA / 4 + 50, ALTURA / 2 - 20, t_fonte, RAYWHITE);
+
+	larguraTexto = MeasureText("Sair", t_fonte);
+	DrawText("Sair", LARGURA / 4 + 50, ALTURA / 1.5 - 20, t_fonte, RAYWHITE);
+
 	switch (op)
 	{
-	case 0:
-		DrawRectangle(LARGURA / 4 - 50, ALTURA / 3, 20, 20, RAYWHITE); // operador em Novo Jogo
+	case MENU_NOVO_JOGO:
+		larguraTexto = MeasureText("Novo Jogo", t_fonte);
+		DrawRectangle(LARGURA / 4 - 50 , ALTURA / 3, 20, 20, RAYWHITE); // operador em Novo Jogo
 		break;
-	case 1:
+	case MENU_RANKING:
+		larguraTexto = MeasureText("Ranking", t_fonte);
 		DrawRectangle(LARGURA / 4 - 50, ALTURA / 2, 20, 20, RAYWHITE); // operador em Ranking
 		break;
-	case 2:
+	case MENU_SAIR:
+		larguraTexto = MeasureText("Sair", t_fonte);
 		DrawRectangle(LARGURA / 4 - 50, ALTURA / 1.5, 20, 20, RAYWHITE); // operador em Sair
 		break;
 	default:
 		break;
+	}
+}
+
+void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Spawnpoint* mapa, int* pontuacao, int *letras, char nome[MAX_NOME + 1])
+{
+	jogador->x = LARGURA / 2;
+	jogador->y = ALTURA / 2;
+	jogador->vidas = 1;
+	inicializaTiros(tiros); // Reinicializa tiros
+	spawnaInimigos(inimigos, mapa); // Reinicializa inimigos
+	*pontuacao = 0; // Reseta pontuação
+	*letras = 0;
+	nome[0] = '\0';
+	return;
+}
+
+void textoPiscante(float intervalo, float* tempo, bool* mostrarTexto)
+{
+	float deltaTempo = GetFrameTime();
+	*tempo += deltaTempo;
+
+	if (*tempo >= intervalo)
+	{
+		*mostrarTexto = !*mostrarTexto;
+		*tempo -= intervalo;
 	}
 }
 
@@ -30,6 +71,7 @@ void inicializaTiros(Tiro* tiros)
 	for (int i = 0; i < MAX_TIROS; i++) {
 		tiros[i].ativo = false; // Inativa todos os tiros
 	}
+	return;
 }
 
 void atira(Tiro* tiros, Jogador jogador)
@@ -44,6 +86,7 @@ void atira(Tiro* tiros, Jogador jogador)
 			break;
 		}
 	}
+	return;
 }
 
 void atualizaTiros(Tiro* tiros)
@@ -59,6 +102,7 @@ void atualizaTiros(Tiro* tiros)
 			tiros[i].y -= VEL_TIRO; // Atualiza posição do tiro
 		}
 	}
+	return;
 }
 
 void desenhaTiros(Tiro* tiros)
@@ -70,6 +114,7 @@ void desenhaTiros(Tiro* tiros)
 			DrawRectangle(tiros[i].x, tiros[i].y, LARG_TIRO, ALT_TIRO, RED); // Desenha o tiro caso ativo
 		}
 	}
+	return;
 }
 
 
@@ -77,12 +122,30 @@ void spawnaInimigos(Inimigo* inimigos, Spawnpoint* mapa)
 {
 	for (int i = 0; i < MAX_INIMIGOS; i++)
 	{
+
 		inimigos[i].ativo = true; // Ativa inimigo
 		inimigos[i].largura = LARG_INIMIGO; // Define largura do inimigo
 		inimigos[i].altura = ALT_INIMIGO; // Define altura do inimigo
 		inimigos[i].x = mapa[i].x;
 		inimigos[i].y = mapa[i].y;
+
+		if (i < 3)
+		{
+			inimigos[i].tipo = NAVIO;
+			inimigos[i].pontos = 30; // Define pontos do inimigo tipo navio
+
+		}
+		else
+		{
+			inimigos[i].tipo = HELICOPTERO;
+			inimigos[i].pontos = 60; // Define pontos do inimigo tipo helicoptero
+
+
+		}
+
+
 	}
+	return;
 }
 
 void atualizaInimigos(Inimigo* inimigos)
@@ -98,20 +161,32 @@ void atualizaInimigos(Inimigo* inimigos)
 			}
 		}
 	}
+	return;
 }
 
 void desenhaInimigos(Inimigo* inimigos)
 {
 	for (int i = 0; i < MAX_INIMIGOS; i++)
 	{
-		if (inimigos[i].ativo)
+		if (inimigos[i].ativo) // Verifica se inimigo está ativo
 		{
-			DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, GREEN); // Desenha o inimigo caso ativo
+			switch (inimigos[i].tipo)
+			{
+			case NAVIO:
+				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, DARKGREEN); // Desenha navio
+				break;
+			case HELICOPTERO:
+				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, RED); // Desenha helicoptero
+				break;
+			default:
+				break;
+			}
 		}
 	}
+	return;
 }
 
-void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos)
+void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao)
 {
 	for (int i = 0; i < MAX_TIROS; i++)
 	{
@@ -127,12 +202,16 @@ void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos)
 					{
 						tiros[i].ativo = false;
 						inimigos[j].ativo = false; // Desativa ambos caso haja colisao
+
+						*pontuacao += inimigos[j].pontos; // Adiciona pontos à pontuação
+
 						break;
 					}
 				}
 			}
 		}
 	}
+	return;
 }
 
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigo)
@@ -147,6 +226,134 @@ void checaColisoesJogador(Jogador* jogador, Inimigo* inimigo)
 			{
 				jogador->vidas--; // Diminui vida do jogador caso haja colisao
 			}
+		}
+	}
+	return;
+}
+
+void desenhaInfo(int pontuacao)
+{
+	DrawText(TextFormat("Pontuacao: %d", pontuacao), 10, 10, 40, BLACK); // Desenha pontuação na tela
+	return;
+}
+
+void inicializaRanking(PontosJogador* ranking)
+{
+	for (int i = 0; i < MAX_RANKING; i++)
+	{
+		ranking[i].pontos = 0; // Inicializa pontos do ranking como 0
+		ranking[i].nome[0] = '\0'; // Inicializa nomes do ranking como string vazia
+	}
+	return;
+}
+
+void copiaRanking(PontosJogador* ranking)
+{
+	FILE* fp = fopen("ranking.bin", "rb"); // Abre arquivo de ranking para leitura
+
+	if (fp != NULL)
+	{
+		if (fread(ranking, sizeof(PontosJogador), MAX_RANKING, fp) != MAX_RANKING) // Lê dados do arquivo para o array de ranking
+		{
+			printf("Erro ao ler o arquivo de ranking.\n");
+		}
+
+		fclose(fp); // Fecha o arquivo
+	}
+	else
+	{
+		printf("Erro ao abrir arquivo de ranking\n");
+	}
+
+	return;
+}
+
+void salvaRanking(PontosJogador* ranking)
+{
+	FILE* fp = fopen("ranking.bin", "wb"); // Abre arquivo de ranking para escrita
+	if (fp != NULL)
+	{
+		if (fwrite(ranking, sizeof(PontosJogador), MAX_RANKING, fp) != MAX_RANKING) // Escreve dados do array de ranking no arquivo
+		{
+			printf("Erro ao escrever no arquivo de ranking.\n");
+		}
+		fclose(fp); // Fecha o arquivo
+	}
+	else
+	{
+		printf("Erro ao abrir arquivo de ranking\n");
+	}
+	return;
+}
+
+
+void printaRanking(PontosJogador* ranking)
+{
+	for (int i = 0; i < MAX_RANKING; i++)
+	{
+		printf("%d. %s - %d pontos\n", i + 1, ranking[i].nome, ranking[i].pontos); // Imprime o ranking no console
+	}
+	return;
+}
+
+
+void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool *mostrarTexto, float *tempoDecorrido)
+{
+	ClearBackground(BLACK);
+	int larguraTexto = MeasureText("SE FODEU", 80);
+
+	DrawText("SE FODEU", (LARGURA - larguraTexto) / 2, (ALTURA - 80) / 2, 80, RED); // Desenha tela de morte
+
+	if (pontuacao > ranking[MAX_RANKING - 1].pontos) // Verifica se a pontuação é maior que a menor do ranking
+	{
+		textoPiscante(intervalo, tempoDecorrido, mostrarTexto);
+
+		larguraTexto = MeasureText("NOVO RECORDE!", 50);
+		if (*mostrarTexto)
+		{
+			DrawText("NOVO RECORDE!", (LARGURA - larguraTexto) / 2, (ALTURA - 50) / 2 - 100, 50, GOLD); // Desen ha mensagem de novo recorde
+		}
+	}
+	larguraTexto = MeasureText("Pressione ENTER para continuar", 30);
+
+	DrawText("Pressione ENTER para continuar", (LARGURA - larguraTexto) / 2, (ALTURA - 30) / 2 + 80, 30, WHITE); // Instrução para sair
+	return;
+}
+
+
+
+
+void desenhaRanking(PontosJogador* ranking)
+{
+	ClearBackground(BLACK);
+	int larguraTexto = MeasureText("RANKING", 80);
+	DrawText("RANKING", (LARGURA - larguraTexto) / 2, 50, 80, GOLD); // Desenha título do ranking
+	for (int i = 0; i < MAX_RANKING; i++)
+	{
+		larguraTexto = MeasureText(TextFormat("%d. %s - %d pontos", i + 1, ranking[i].nome, ranking[i].pontos), 40);
+		DrawText(TextFormat("%d. %s - %d pontos", i + 1, ranking[i].nome, ranking[i].pontos), 100, 150 + i * 50, 40, WHITE); // Desenha cada entrada do ranking
+	}
+	larguraTexto = MeasureText("Pressione ENTER para voltar ao menu", 30);
+	DrawText("Pressione ENTER para voltar ao menu", (LARGURA - larguraTexto) / 2, ALTURA - 100, 30, WHITE); // Instrução para sair do ranking
+	return;
+}
+
+void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME + 1])
+{
+	PontosJogador jog;
+	strcpy(jog.nome, nome);
+	jog.pontos = pontuacao;
+
+	for (int i = 0; i < MAX_RANKING; i++)
+	{
+		if (pontuacao > ranking[i].pontos)
+		{
+			for (int j = MAX_RANKING - 1; j > i; j--)
+			{
+				ranking[j] = ranking[j - 1];
+			}
+			ranking[i] = jog;
+			break;
 		}
 	}
 }

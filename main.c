@@ -6,21 +6,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "Map.h"
 
-Spawnpoint teste_1[MAX_INIMIGOS] =
-{
-  {100, -50},
-  {200, -100},
-  {300, -50},
-  {400, -100},
-  {500, -50}
-};
 
 
 int main() {
 	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
 	Tiro tiros[MAX_TIROS]; //Cria array de tiros
 	Inimigo inimigos[MAX_INIMIGOS];
+
+	Terreno terrenos[MAX_TERRENO];
+	Combustivel combustiveis[MAX_COMBUSTIVEL];
 
 	EstadoJogo Estado = EST_MENU; // Define estado do jogo inicialmenmte como menu
 
@@ -35,6 +31,8 @@ int main() {
 	float deltaTempo;
 	bool mostrarTexto = true;
 
+	float velocidadeCenario = 1.0f;
+
 	int larguraTexto = 0; // Variavel utilizada para centralizar texto
 
 	int letras = 0; // Letras do nome inserido
@@ -48,8 +46,8 @@ int main() {
 	InitWindow(LARGURA, ALTURA, "River-Inf"); //Inicializa janela
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
-	spawnaInimigos(inimigos, teste_1); // Inicializa inimigos
 
+	CarregarMapa("fase1.txt", &jogador, inimigos, terrenos, combustiveis);
 
 	copiaRanking(ranking); // Carrega ranking de arquivo
 	printaRanking(ranking); // Imprime ranking no console
@@ -94,11 +92,18 @@ int main() {
 			menu(M_op); // Desenha o menu
 			EndDrawing();
 			break;
+
+
 		case EST_JOGO:
+
 			atualizaTiros(tiros); // Atualiza posição e estado dos tiros a cada iteração
 			atualizaInimigos(inimigos); // Atualiza posição e estado dos inimigos a cada iteração
+			
+			AtualizaMapa(terrenos, combustiveis, velocidadeCenario);
+
 			checaColisoesTiro(tiros, inimigos, &pontuacao); // Checa colisões entre tiros e inimigos
 			checaColisoesJogador(&jogador, inimigos); // Checa colisões entre jogador e inimigos
+			checaColisoesMapa(&jogador, terrenos); // Checa colisões entre jogador e mapa
 
 
 			if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) // Movimento para a direita
@@ -130,13 +135,18 @@ int main() {
 
 
 			BeginDrawing();
-			ClearBackground(RAYWHITE);
-			DrawRectangle(jogador.x, jogador.y, jogador.largura, jogador.altura, BLUE); //Desenha o jogador na tela
+			ClearBackground(BLUE);
+
+			DesenhaMapa(terrenos, combustiveis);
+
+			DrawRectangle(jogador.x, jogador.y, jogador.largura, jogador.altura, YELLOW); //Desenha o jogador na tela
 			desenhaTiros(tiros); // Desenha o tiro na tela
 			desenhaInimigos(inimigos); // Desenha os inimigos na tela
 			desenhaInfo(pontuacao); // Desenha a pontuação na tela
+
 			EndDrawing();
 			break;
+
 		case EST_MORTE: // Caso jogador tenha morrido
 			if (!inserirRanking) // Checa se jogador pode ser inserido nor ranking
 			{
@@ -149,7 +159,7 @@ int main() {
 					else
 					{
 						M_op = MENU_NOVO_JOGO;
-						resetaJogo(&jogador, tiros, inimigos, teste_1, &pontuacao, &letras, nomeJogador);
+						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
 						Estado = EST_MENU;
 					}
 				}
@@ -185,7 +195,7 @@ int main() {
 				{
 					AtualizaPosRank(pontuacao, ranking, nomeJogador);
 					salvaRanking(ranking);
-					resetaJogo(&jogador, tiros, inimigos, teste_1, &pontuacao, &letras, nomeJogador);
+					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador); 
 					Estado = EST_RANKING;
 				}
 

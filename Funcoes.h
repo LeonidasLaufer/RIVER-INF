@@ -12,7 +12,7 @@
 
 #define LARG_INIMIGO 40
 #define ALT_INIMIGO 40
-#define VEL_INIMIGO 3
+#define VEL_INIMIGO 1
 #define MAX_INIMIGOS 5
 
 #define LARG_TIRO 5
@@ -20,8 +20,8 @@
 #define VEL_TIRO 8
 #define MAX_TIROS 8
 
-#define LARGURA 800
-#define ALTURA 960
+#define LARGURA 960
+#define ALTURA 800
 
 typedef enum {
 	EST_MENU,
@@ -71,13 +71,12 @@ typedef struct {
 	bool ativo;
 } Inimigo;
 
-typedef struct {
-	int x;
-	int y;
-} Spawnpoint;
+typedef struct Terreno Terreno;
+
+typedef struct Combustivel Combustivel;
+
 
 void menu(int op);
-
 void textoPiscante(float intervalo, float* tempo, bool* mostrarTexto);
 
 void inicializaTiros(Tiro* tiros);
@@ -85,14 +84,16 @@ void atira(Tiro* tiros, Jogador jogador);
 void atualizaTiros(Tiro* tiros);
 void desenhaTiros(Tiro* tiros);
 
-void spawnaInimigos(Inimigo* inimigos, Spawnpoint* mapa);
 void atualizaInimigos(Inimigo* inimigos);
 void desenhaInimigos(Inimigo* inimigos);
 
 void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao);
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigos);
+void checaColisoesMapa(Jogador* jogador, Terreno* terrenos);
 
 void desenhaInfo(int pontuacao);
+void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool* mostrarTexto, float* tempoDecorrido);
+
 
 void inicializaRanking(PontosJogador* ranking);
 void copiaRanking(PontosJogador* ranking);
@@ -101,9 +102,7 @@ void printaRanking(PontosJogador* ranking);
 void desenhaRanking(PontosJogador* ranking);
 void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME + 1]);
 
-void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool *mostrarTexto, float *tempoDecorrido);
-void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Spawnpoint* mapa, int* pontuacao, int *letras, char[MAX_NOME + 1]);
-
+void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome);
 
 
 #endif // FUNCOES_H

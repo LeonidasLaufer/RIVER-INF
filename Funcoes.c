@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "Map.h"
+#include <ctype.h>
+
 
 void menu(int op)
 {
@@ -40,18 +43,7 @@ void menu(int op)
 	}
 }
 
-void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Spawnpoint* mapa, int* pontuacao, int *letras, char nome[MAX_NOME + 1])
-{
-	jogador->x = LARGURA / 2;
-	jogador->y = ALTURA / 2;
-	jogador->vidas = 1;
-	inicializaTiros(tiros); // Reinicializa tiros
-	spawnaInimigos(inimigos, mapa); // Reinicializa inimigos
-	*pontuacao = 0; // Reseta pontuação
-	*letras = 0;
-	nome[0] = '\0';
-	return;
-}
+
 
 void textoPiscante(float intervalo, float* tempo, bool* mostrarTexto)
 {
@@ -118,35 +110,6 @@ void desenhaTiros(Tiro* tiros)
 }
 
 
-void spawnaInimigos(Inimigo* inimigos, Spawnpoint* mapa)
-{
-	for (int i = 0; i < MAX_INIMIGOS; i++)
-	{
-
-		inimigos[i].ativo = true; // Ativa inimigo
-		inimigos[i].largura = LARG_INIMIGO; // Define largura do inimigo
-		inimigos[i].altura = ALT_INIMIGO; // Define altura do inimigo
-		inimigos[i].x = mapa[i].x;
-		inimigos[i].y = mapa[i].y;
-
-		if (i < 3)
-		{
-			inimigos[i].tipo = NAVIO;
-			inimigos[i].pontos = 30; // Define pontos do inimigo tipo navio
-
-		}
-		else
-		{
-			inimigos[i].tipo = HELICOPTERO;
-			inimigos[i].pontos = 60; // Define pontos do inimigo tipo helicoptero
-
-
-		}
-
-
-	}
-	return;
-}
 
 void atualizaInimigos(Inimigo* inimigos)
 {
@@ -173,7 +136,7 @@ void desenhaInimigos(Inimigo* inimigos)
 			switch (inimigos[i].tipo)
 			{
 			case NAVIO:
-				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, DARKGREEN); // Desenha navio
+				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, DARKGRAY); // Desenha navio
 				break;
 			case HELICOPTERO:
 				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, RED); // Desenha helicoptero
@@ -263,6 +226,7 @@ void copiaRanking(PontosJogador* ranking)
 	else
 	{
 		printf("Erro ao abrir arquivo de ranking\n");
+		inicializaRanking(ranking);
 	}
 
 	return;
@@ -354,6 +318,49 @@ void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME +
 			}
 			ranking[i] = jog;
 			break;
+		}
+	}
+}
+
+void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome)
+{
+	jogador->vidas = 1;
+
+	inicializaTiros(tiros); // Reinicializa tiros
+
+	*pontuacao = 0; // Reseta pontuação
+	*letras = 0;
+	nome[0] = '\0';
+
+	CarregarMapa("fase1.txt", jogador, inimigos, terrenos, combustiveis);
+	return;
+}
+
+void checaColisoesMapa(Jogador* jogador, Terreno* terrenos)
+{
+	Rectangle r_Jogador = {
+		jogador->x + 8,   
+		jogador->y + 5,   
+		jogador->largura - 16,
+		jogador->altura - 10
+	};
+
+	for (int i = 0; i < MAX_TERRENO; i++)
+	{
+		if (terrenos[i].ativo)
+		{
+			Rectangle r_Terreno = {
+				terrenos[i].x,
+				terrenos[i].y,
+				TAMANHO_QUADRADO,
+				TAMANHO_QUADRADO
+			};
+
+			if (CheckCollisionRecs(r_Jogador, r_Terreno))
+			{
+				jogador->vidas--;
+				break;
+			}
 		}
 	}
 }

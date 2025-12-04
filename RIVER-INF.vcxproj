@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="Funcoes.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="map.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Funcoes.h" />
+    <ClInclude Include="Map.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ranking.bin" />

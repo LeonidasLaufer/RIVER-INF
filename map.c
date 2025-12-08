@@ -3,8 +3,7 @@
 #include <stdbool.h>
 #include <raylib.h>
 
-void CarregarMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis) {
-
+void InicializarEntidades(Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis) {
 	for (int i = 0; i < MAX_INIMIGOS; i++) {
 		inimigos[i].ativo = false;
 	}
@@ -14,6 +13,10 @@ void CarregarMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, Terr
 	for (int i = 0; i < MAX_COMBUSTIVEL; i++) {
 		combustiveis[i].ativo = false;
 	}
+}
+
+void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, int* qtd_inimigos, Terreno* terrenos, int* qtd_terrenos, Combustivel* combustiveis, int* qtd_combustiveis, float desvioY) {
+
 
 	FILE* fp = fopen(arquivo, "r"); 
 	if (fp == NULL) {
@@ -25,9 +28,7 @@ void CarregarMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, Terr
 	char ch;
 	int linha = 0;
 	int coluna = 0;
-	int c_inimigo = 0;
-	int c_terreno = 0;
-	int c_gas = 0;
+
 
 
 	while ((ch = fgetc(fp)) != EOF && linha < NUM_LINHAS) {
@@ -49,69 +50,75 @@ void CarregarMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, Terr
 		}
 
 		float posX = coluna * TAMANHO_QUADRADO;
-		float posY = linha * TAMANHO_QUADRADO;
+		float posY = (linha * TAMANHO_QUADRADO) + desvioY;
 
 		switch (ch)
 		{
 		case 'T':
-			if (c_terreno < MAX_TERRENO) {
-				terrenos[c_terreno].x = posX;
-				terrenos[c_terreno].y = posY;
-				terrenos[c_terreno].ativo = true;
-				terrenos[c_terreno].destrutivel = false;
-				c_terreno++;
+			if (*qtd_terrenos < MAX_TERRENO) {
+				int i = *qtd_terrenos;
+				terrenos[i].x = posX;
+				terrenos[i].y = posY;
+				terrenos[i].ativo = true;
+				terrenos[i].destrutivel = false;
+				(*qtd_terrenos)++;
 			}
 			break;
 
 		case 'P':
-			if (c_terreno < MAX_TERRENO) {
-				terrenos[c_terreno].x = posX;
-				terrenos[c_terreno].y = posY;
-				terrenos[c_terreno].ativo = true;
-				terrenos[c_terreno].destrutivel = true;
-				c_terreno++;
+			if (*qtd_terrenos < MAX_TERRENO) {
+				int i = *qtd_terrenos;
+				terrenos[i].x = posX;
+				terrenos[i].y = posY;
+				terrenos[i].ativo = true;
+				terrenos[i].destrutivel = true;
+				(*qtd_terrenos)++;
 			}
 			break;
 
 		case 'G':
-			if (c_gas < MAX_COMBUSTIVEL) {
-				combustiveis[c_gas].x = posX;
-				combustiveis[c_gas].y = posY;
-				combustiveis[c_gas].ativo = true;
-				c_gas++;
+			if (*qtd_combustiveis < MAX_COMBUSTIVEL) {
+				int i = *qtd_combustiveis;
+				combustiveis[i].x = posX;
+				combustiveis[i].y = posY;
+				combustiveis[i].ativo = true;
+				(*qtd_combustiveis)++;
 			}
 			break;
 
 		case 'N':
-			if (c_inimigo < MAX_INIMIGOS) {
-				inimigos[c_inimigo].x = posX;
-				inimigos[c_inimigo].y = posY;
-				inimigos[c_inimigo].largura = TAMANHO_QUADRADO;
-				inimigos[c_inimigo].altura = TAMANHO_QUADRADO;
-				inimigos[c_inimigo].tipo = NAVIO;
-				inimigos[c_inimigo].pontos = 30;
-				inimigos[c_inimigo].ativo = true;
-				c_inimigo++;
+			if (*qtd_inimigos < MAX_INIMIGOS) {
+				int i = *qtd_inimigos;
+				inimigos[i].x = posX;
+				inimigos[i].y = posY;
+				inimigos[i].largura = TAMANHO_QUADRADO;
+				inimigos[i].altura = TAMANHO_QUADRADO;
+				inimigos[i].tipo = NAVIO;
+				inimigos[i].pontos = 30;
+				inimigos[i].ativo = true;
+				(*qtd_inimigos)++;
 			}
 			break;
 
 		case 'X':
-			if (c_inimigo < MAX_INIMIGOS) {
-				inimigos[c_inimigo].x = posX;
-				inimigos[c_inimigo].y = posY;
-				inimigos[c_inimigo].largura = TAMANHO_QUADRADO;
-				inimigos[c_inimigo].altura = TAMANHO_QUADRADO;
-				inimigos[c_inimigo].tipo = HELICOPTERO;
-				inimigos[c_inimigo].pontos = 30;
-				inimigos[c_inimigo].ativo = true;
-				c_inimigo++;
+			if (*qtd_inimigos < MAX_INIMIGOS) {
+				int i = *qtd_inimigos;
+				inimigos[i].x = posX;
+				inimigos[i].y = posY;
+				inimigos[i].largura = TAMANHO_QUADRADO;
+				inimigos[i].altura = TAMANHO_QUADRADO;
+				inimigos[i].tipo = HELICOPTERO;
+				inimigos[i].pontos = 30;
+				inimigos[i].ativo = true;
+				(*qtd_inimigos)++;
 			}
 			break;
 
 		case 'A':
-			jogador->x = posX;
-			jogador->y = posY;
-
+			if (desvioY == 0) {
+				jogador->x = posX;
+				jogador->y = posY;
+			}
 			break;
 		}
 
@@ -130,7 +137,7 @@ void AtualizaMapa(Terreno* terrenos, Combustivel* combustiveis, float velocidade
 		if (terrenos[i].ativo) {
 			terrenos[i].y += velocidade;
 
-			if (terrenos[i].y > NUM_LINHAS * TAMANHO_QUADRADO) {
+			if (terrenos[i].y > ALTURA + 100) {
 				terrenos[i].ativo = false;
 			}
 		}
@@ -139,7 +146,7 @@ void AtualizaMapa(Terreno* terrenos, Combustivel* combustiveis, float velocidade
 	for (int i = 0; i < MAX_COMBUSTIVEL; i++) {
 		if (combustiveis[i].ativo) {
 			combustiveis[i].y += velocidade;
-			if (combustiveis[i].y > NUM_LINHAS * TAMANHO_QUADRADO) {
+			if (combustiveis[i].y > ALTURA + 100) {
 				combustiveis[i].ativo = false;
 			}
 		}

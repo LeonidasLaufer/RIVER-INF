@@ -8,8 +8,12 @@
 #define NUM_COLUNAS 24
 #define NUM_LINHAS 20
 
-#define MAX_TERRENO (NUM_COLUNAS * NUM_LINHAS)
-#define MAX_COMBUSTIVEL 50
+#define MAX_FASES_SUPORTADAS 10
+
+#define MAX_TERRENO (NUM_COLUNAS * NUM_LINHAS * MAX_FASES_SUPORTADAS)
+#define MAX_COMBUSTIVEL (20 * MAX_FASES_SUPORTADAS)
+
+#define ALTURA_MAPA (NUM_LINHAS * TAMANHO_QUADRADO)
 
 typedef struct Terreno {
 	float x;
@@ -24,8 +28,8 @@ typedef struct Combustivel {
 	bool ativo;
 } Combustivel;
 
-
-void CarregarMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis);
+void InicializarEntidades(Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis);
+void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, int* qtd_inimigos, Terreno* terrenos, int* qtd_terrenos, Combustivel* combustiveis, int* qtd_combustiveis, float desvioY);
 void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis);
 void AtualizaMapa(Terreno* terrenos, Combustivel* combustiveis, float velocidade);
 

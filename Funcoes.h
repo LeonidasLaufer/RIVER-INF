@@ -13,7 +13,7 @@
 #define LARG_INIMIGO 40
 #define ALT_INIMIGO 40
 #define VEL_INIMIGO 1
-#define MAX_INIMIGOS 5
+#define MAX_INIMIGOS 5 * MAX_FASES_SUPORTADAS
 
 #define LARG_TIRO 5
 #define ALT_TIRO 10
@@ -22,6 +22,7 @@
 
 #define LARGURA 960
 #define ALTURA 800
+
 
 typedef enum {
 	EST_MENU,

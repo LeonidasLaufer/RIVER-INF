@@ -113,16 +113,17 @@ void desenhaTiros(Tiro* tiros)
 
 void atualizaInimigos(Inimigo* inimigos)
 {
+
+	float velocidadeinimigo = 1.0f;
+
 	for (int i = 0; i < MAX_INIMIGOS; i++)
 	{
-		if (inimigos[i].ativo)
-		{
-			inimigos[i].y += VEL_INIMIGO; // Atualiza posição do inimigo
-			if (inimigos[i].y > ALTURA)
-			{
-				inimigos[i].ativo = false; // Desativa inimigo caso esteja fora da tela
+		if (inimigos[i].ativo){
+			inimigos[i].y += velocidadeinimigo;
+			if (inimigos[i].y > ALTURA + 100) {
+				inimigos[i].ativo = false;
 			}
-		}
+			}
 	}
 	return;
 }
@@ -332,8 +333,20 @@ void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terre
 	*letras = 0;
 	nome[0] = '\0';
 
-	CarregarMapa("fase1.txt", jogador, inimigos, terrenos, combustiveis);
-	return;
+	const char* listaFases[] = { "fase1.txt", "fase2.txt", "fase3.txt" };
+	int totalFases = sizeof(listaFases) / sizeof(listaFases[0]);
+
+	InicializarEntidades(inimigos, terrenos, combustiveis);
+
+	int qtd_inimigos = 0;
+	int qtd_terrenos = 0;
+	int qtd_combustiveis = 0;
+
+	for (int i = 0; i < totalFases; i++) {
+		float offset = i * -((float)ALTURA_MAPA);
+		CarregarTrechoMapa(listaFases[i], jogador, inimigos, &qtd_inimigos, terrenos, &qtd_terrenos, combustiveis, &qtd_combustiveis, offset);
+	}
+	 return;
 }
 
 void checaColisoesMapa(Jogador* jogador, Terreno* terrenos)

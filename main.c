@@ -11,12 +11,13 @@
 
 
 int main() {
-	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
-	Tiro tiros[MAX_TIROS]; //Cria array de tiros
-	Inimigo inimigos[MAX_INIMIGOS];
 
-	Terreno terrenos[MAX_TERRENO];
-	Combustivel combustiveis[MAX_COMBUSTIVEL];
+	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
+	
+	static Tiro tiros[MAX_TIROS]; //Cria array de tiros
+	static Inimigo inimigos[MAX_INIMIGOS];
+	static Terreno terrenos[MAX_TERRENO];
+	static Combustivel combustiveis[MAX_COMBUSTIVEL];
 
 	EstadoJogo Estado = EST_MENU; // Define estado do jogo inicialmenmte como menu
 
@@ -41,13 +42,26 @@ int main() {
 	Rectangle caixaTexto = { (LARGURA - 300) / 2, ALTURA / 2 , 300, 100 }; // Delimita caixa de texto do nome
 
 	int pontuacao = 0;
-	PontosJogador ranking[MAX_RANKING]; // Array do ranking
+	static PontosJogador ranking[MAX_RANKING]; // Array do ranking
 
 	InitWindow(LARGURA, ALTURA, "River-Inf"); //Inicializa janela
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
 
-	CarregarMapa("fase1.txt", &jogador, inimigos, terrenos, combustiveis);
+	const char* listaFases[] = { "fase1.txt", "fase2.txt", "fase3.txt"};
+	int totalFases = sizeof(listaFases) / sizeof(listaFases[0]);
+
+	InicializarEntidades(inimigos, terrenos, combustiveis);
+
+	int qtd_inimigos = 0;
+	int qtd_terrenos = 0;
+	int qtd_combustiveis = 0;
+
+	for (int i = 0; i < totalFases; i++) {
+		float offset = i * -((float)ALTURA_MAPA);
+		CarregarTrechoMapa(listaFases[i], &jogador, inimigos, &qtd_inimigos, terrenos, &qtd_terrenos, combustiveis, &qtd_combustiveis, offset);
+	}
+
 
 	copiaRanking(ranking); // Carrega ranking de arquivo
 	printaRanking(ranking); // Imprime ranking no console

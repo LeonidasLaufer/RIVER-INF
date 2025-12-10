@@ -34,7 +34,8 @@ typedef enum {
 	EST_JOGO,
 	EST_PAUSE,
 	EST_MORTE,
-	EST_RANKING
+	EST_RANKING,
+	EST_VITORIA 
 }EstadoJogo;
 
 typedef enum {
@@ -103,7 +104,7 @@ void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_h
 
 void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao);
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigos);
-void checaColisoesMapa(Jogador* jogador, Terreno* terrenos, Tiro* tiros, Combustivel* posto, int* ac_res, int* pontuacao, bool* ÈPosto);
+void checaColisoesMapa(Jogador* jogador, Terreno* terrenos, Tiro* tiros, Combustivel* posto, int* ac_res, int* pontuacao, bool* ÈPosto, bool* vitoria);
 
 void desenhaInfo(int pontuacao, Jogador jogador);
 void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool* mostrarTexto, float* tempoDecorrido);
@@ -118,5 +119,6 @@ void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME +
 
 void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome);
 
+void desenhaTelaVitoria(int pontuacao, PontosJogador* ranking, float intervalo, bool* mostrarTexto, float* tempoDecorrido);
 
 #endif // FUNCOES_H

@@ -33,7 +33,7 @@ int main() {
 	float deltaTempo;
 	bool mostrarTexto = true;
 
-	float velocidadeCenario = 1.0f;
+	float velocidadeCenario = 2.0f;
 
 	int larguraTexto = 0; // Variavel utilizada para centralizar texto
 
@@ -46,7 +46,7 @@ int main() {
 	static PontosJogador ranking[MAX_RANKING]; // Array do ranking
 
 	int ac_combustivel = 0;
-	int ac_vida = 0;
+	int ac_vida = 1000;
 	int ac_reabastecimento = 0;
 	bool éPosto = false;
 
@@ -54,7 +54,7 @@ int main() {
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
 
-	const char* listaFases[] = { "fase1.txt", "fase2.txt", "fase3.txt"};
+	const char* listaFases[] = { "fase1.txt", "fase2.txt", "fase3.txt", "fase4.txt", "fase5.txt"};
 	int totalFases = sizeof(listaFases) / sizeof(listaFases[0]);
 
 	Texture2D sprite_jog = LoadTexture("Sprites/Jogador.png");
@@ -80,6 +80,8 @@ int main() {
 	copiaRanking(ranking); // Carrega ranking de arquivo
 	printaRanking(ranking); // Imprime ranking no console
 
+	bool vitoriaDetectada = false;
+
 	while (!WindowShouldClose() && !sair) // Enquanto o ESC e o botão de sair nao forem pressionados
 	{
 		switch (Estado)
@@ -101,6 +103,7 @@ int main() {
 				{
 				case MENU_NOVO_JOGO:
 					Estado = EST_JOGO; // Começa o jogo caso cursor esteja em Novo Jogo
+					vitoriaDetectada = false;
 					break;
 				case MENU_RANKING:
 					Estado = EST_RANKING; // Entra no ranking caso cursor esteja no ranking
@@ -134,11 +137,10 @@ int main() {
 				}
 			}
 			
-			ac_vida = pontuacao;
-			if (ac_vida >= 1000)
+			if (pontuacao >= ac_vida)
 			{
 				jogador.vidas++;
-				ac_vida = 0;
+				ac_vida += 1000;
 			}
 
 			atualizaTiros(tiros); // Atualiza posição e estado dos tiros a cada iteração
@@ -149,8 +151,7 @@ int main() {
 
 			checaColisoesTiro(tiros, inimigos, &pontuacao); // Checa colisões entre tiros e inimigos
 			checaColisoesJogador(&jogador, inimigos); // Checa colisões entre jogador e inimigos
-			checaColisoesMapa(&jogador, terrenos, tiros, combustiveis, &ac_reabastecimento, &pontuacao, &éPosto); // Checa colisões entre jogador e mapa
-
+			checaColisoesMapa(&jogador, terrenos, tiros, combustiveis, &ac_reabastecimento, &pontuacao, &éPosto, &vitoriaDetectada); // Checa colisões entre jogador e mapa
 
 			if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) // Movimento para a direita
 			{
@@ -180,11 +181,15 @@ int main() {
 				atira(tiros, jogador); // Atira
 			}
 
-			if (jogador.vidas == 0) // Caso jogador fique sem vidas
+			if (jogador.vidas == 0 || jogador.combustivel <= 0) // Caso jogador fique sem vidas
 			{
 				Estado = EST_MORTE; // Muda estado para Morte
 			}
 
+			if (vitoriaDetectada)
+			{
+				Estado = EST_VITORIA;
+			}
 
 			BeginDrawing();
 			ClearBackground(BLUE);
@@ -225,6 +230,7 @@ int main() {
 					{
 						M_op = MENU_NOVO_JOGO;
 						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+						ac_vida = 1000;
 						Estado = EST_MENU;
 					}
 				}
@@ -261,6 +267,7 @@ int main() {
 					AtualizaPosRank(pontuacao, ranking, nomeJogador);
 					salvaRanking(ranking);
 					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador); 
+					ac_vida = 1000;
 					Estado = EST_RANKING;
 				}
 
@@ -290,6 +297,78 @@ int main() {
 			}
 			
 			break;
+
+		case EST_VITORIA:
+			if (!inserirRanking)
+			{
+				if (IsKeyPressed(KEY_ENTER))
+				{
+					if (pontuacao > ranking[MAX_RANKING - 1].pontos)
+					{
+						inserirRanking = true;
+					}
+					else
+					{
+						M_op = MENU_NOVO_JOGO;
+						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+						ac_vida = 1000;
+						Estado = EST_MENU;
+					}
+				}
+				BeginDrawing();
+				desenhaTelaVitoria(pontuacao, ranking, intervalo, &mostrarTexto, &tempoDecorrido);
+				EndDrawing();
+			}
+			else
+			{
+				int tecla = GetCharPressed();
+				while (tecla > 0 && letras < MAX_NOME)
+				{
+					if ((tecla >= 32) && (tecla <= 125))
+					{
+						nomeJogador[letras] = toupper((char)tecla);
+						letras++;
+						nomeJogador[letras] = '\0';
+					}
+					tecla = GetCharPressed();
+				}
+
+				if (IsKeyPressed(KEY_BACKSPACE))
+				{
+					if (letras > 0) letras--;
+					nomeJogador[letras] = '\0';
+				}
+
+				if (IsKeyPressed(KEY_ENTER) && letras >= 3)
+				{
+					AtualizaPosRank(pontuacao, ranking, nomeJogador);
+					salvaRanking(ranking);
+					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+					ac_vida = 1000;
+					Estado = EST_RANKING;
+				}
+
+				BeginDrawing();
+				ClearBackground(DARKGREEN);
+
+				textoPiscante(intervalo, &tempoDecorrido, &mostrarTexto);
+
+				larguraTexto = MeasureText("VOCE VENCEU! INSIRA SEU NOME", 40);
+				if (mostrarTexto)
+				{
+					DrawText("VOCE VENCEU! INSIRA SEU NOME", (LARGURA - larguraTexto) / 2, (ALTURA - 60) / 2 - 200, 40, GOLD);
+				}
+
+				DrawText(nomeJogador, caixaTexto.x + 10, caixaTexto.y + 10, 50, RAYWHITE);
+
+				larguraTexto = MeasureText("Pressione ENTER para confirmar", 30);
+				DrawText("Pressione ENTER para confirmar", (LARGURA - larguraTexto) / 2, ((ALTURA - 40) / 2) + 300, 30, RAYWHITE);
+
+				EndDrawing();
+			}
+			break;
+
+
 
 		case EST_RANKING:
 			BeginDrawing();

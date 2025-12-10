@@ -94,7 +94,7 @@ void menu(int op);
 void textoPiscante(float intervalo, float* tempo, bool* mostrarTexto);
 
 void inicializaTiros(Tiro* tiros);
-void atira(Tiro* tiros, Jogador jogador);
+void atira(Tiro* tiros, Jogador jogador, Sound s_tiro);
 void atualizaTiros(Tiro* tiros);
 void desenhaTiros(Tiro* tiros);
 void desenhaJogador(Jogador jogador, Texture2D sprite);
@@ -102,7 +102,7 @@ void desenhaJogador(Jogador jogador, Texture2D sprite);
 void atualizaInimigos(Inimigo* inimigos);
 void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_heli);
 
-void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao);
+void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao, Sound s_explo);
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigos);
 void checaColisoesMapa(Jogador* jogador, Terreno* terrenos, Tiro* tiros, Combustivel* posto, int* ac_res, int* pontuacao, bool* ÈPosto, bool* vitoria);
 
@@ -117,7 +117,7 @@ void printaRanking(PontosJogador* ranking);
 void desenhaRanking(PontosJogador* ranking);
 void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME + 1]);
 
-void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome);
+void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome, bool* somTocado);
 
 void desenhaTelaVitoria(int pontuacao, PontosJogador* ranking, float intervalo, bool* mostrarTexto, float* tempoDecorrido);
 

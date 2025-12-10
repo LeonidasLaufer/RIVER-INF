@@ -128,7 +128,7 @@ void atualizaInimigos(Inimigo* inimigos)
 	return;
 }
 
-void desenhaInimigos(Inimigo* inimigos)
+void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_heli)
 {
 	for (int i = 0; i < MAX_INIMIGOS; i++)
 	{
@@ -137,10 +137,10 @@ void desenhaInimigos(Inimigo* inimigos)
 			switch (inimigos[i].tipo)
 			{
 			case NAVIO:
-				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, DARKGRAY); // Desenha navio
+				DrawTexture(sprite_nav, inimigos[i].x, inimigos[i].y, WHITE); // Desenha navio
 				break;
 			case HELICOPTERO:
-				DrawRectangle(inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura, RED); // Desenha helicoptero
+				DrawTexture(sprite_heli, inimigos[i].x, inimigos[i].y, WHITE); // Desenha helicoptero
 				break;
 			default:
 				break;
@@ -148,6 +148,11 @@ void desenhaInimigos(Inimigo* inimigos)
 		}
 	}
 	return;
+}
+
+void desenhaJogador(Jogador jogador, Texture2D sprite)
+{
+	DrawTexture(sprite, jogador.x, jogador.y, WHITE);
 }
 
 void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao)
@@ -189,16 +194,20 @@ void checaColisoesJogador(Jogador* jogador, Inimigo* inimigo)
 			if (CheckCollisionRecs(r_Inimigo, r_Jogador))
 			{
 				jogador->vidas--; // Diminui vida do jogador caso haja colisao
+				inimigo[i].ativo = false;
 			}
 		}
 	}
 	return;
 }
 
-void desenhaInfo(int pontuacao)
+void desenhaInfo(int pontuacao, Jogador jogador)
 {
-	DrawText(TextFormat("Pontuacao: %d", pontuacao), 10, 10, 40, BLACK); // Desenha pontuaÁ„o na tela
+	DrawText(TextFormat("Score: %d", pontuacao), 10, 10, 40, GOLD); // Desenha pontuaÁ„o na tela
+	DrawText(TextFormat("Combustivel: %d", jogador.combustivel), 300, 10, 40, GOLD);
+	DrawText(TextFormat("Vidas: %d", jogador.vidas), 750, 10, 40, GOLD);
 	return;
+
 }
 
 void inicializaRanking(PontosJogador* ranking)
@@ -325,7 +334,8 @@ void AtualizaPosRank(int pontuacao, PontosJogador* ranking, char nome[MAX_NOME +
 
 void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome)
 {
-	jogador->vidas = 1;
+	jogador->vidas = 3;
+	jogador->combustivel = 100;
 
 	inicializaTiros(tiros); // Reinicializa tiros
 
@@ -349,7 +359,7 @@ void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terre
 	 return;
 }
 
-void checaColisoesMapa(Jogador* jogador, Terreno* terrenos)
+void checaColisoesMapa(Jogador* jogador, Terreno* terrenos, Tiro* tiros, Combustivel* posto, int* ac_res, int* pontuacao, bool* ÈPosto)
 {
 	Rectangle r_Jogador = {
 		jogador->x + 8,   
@@ -357,6 +367,11 @@ void checaColisoesMapa(Jogador* jogador, Terreno* terrenos)
 		jogador->largura - 16,
 		jogador->altura - 10
 	};
+
+	Rectangle r_tiro;
+	Rectangle r_posto;
+
+	
 
 	for (int i = 0; i < MAX_TERRENO; i++)
 	{
@@ -371,8 +386,55 @@ void checaColisoesMapa(Jogador* jogador, Terreno* terrenos)
 
 			if (CheckCollisionRecs(r_Jogador, r_Terreno))
 			{
-				jogador->vidas--;
+				jogador->vidas = 0;
 				break;
+			}
+			for (int j = 0; j < MAX_TIROS; j++)
+			{
+				if (tiros[j].ativo)
+				{
+					r_tiro = (Rectangle){ tiros[j].x, tiros[j].y, LARG_TIRO, ALT_TIRO };
+					if (CheckCollisionRecs(r_tiro, r_Terreno))
+					{
+						tiros[j].ativo = false;
+						if (terrenos[i].destrutivel)
+						{
+							terrenos[i].ativo = false;
+							*pontuacao += terrenos[i].pontos;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	
+
+	for (int i = 0; i < MAX_COMBUSTIVEL; i++)
+	{
+		if (posto[i].ativo)
+		{
+			r_posto = (Rectangle){
+				posto[i].x,
+				posto[i].y,
+				LARG_POSTO,
+				ALT_POSTO
+			};
+
+			if (CheckCollisionRecs(r_posto, r_Jogador))
+			{
+				*ÈPosto = true;
+				(*ac_res)++;
+				if (*ac_res >= 6 && jogador->combustivel < 100)
+				{
+					jogador->combustivel++;
+					*ac_res = 0;
+
+				}
+			}
+			else
+			{
+				*ÈPosto = false;
 			}
 		}
 	}

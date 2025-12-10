@@ -1,4 +1,5 @@
 #include "map.h"
+#include "Funcoes.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <raylib.h>
@@ -72,6 +73,7 @@ void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos
 				terrenos[i].y = posY;
 				terrenos[i].ativo = true;
 				terrenos[i].destrutivel = true;
+				terrenos[i].pontos = 60;
 				(*qtd_terrenos)++;
 			}
 			break;
@@ -91,8 +93,8 @@ void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos
 				int i = *qtd_inimigos;
 				inimigos[i].x = posX;
 				inimigos[i].y = posY;
-				inimigos[i].largura = TAMANHO_QUADRADO;
-				inimigos[i].altura = TAMANHO_QUADRADO;
+				inimigos[i].largura = LARG_NAVIO;
+				inimigos[i].altura = ALT_NAVIO;
 				inimigos[i].tipo = NAVIO;
 				inimigos[i].pontos = 30;
 				inimigos[i].ativo = true;
@@ -105,10 +107,10 @@ void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos
 				int i = *qtd_inimigos;
 				inimigos[i].x = posX;
 				inimigos[i].y = posY;
-				inimigos[i].largura = TAMANHO_QUADRADO;
-				inimigos[i].altura = TAMANHO_QUADRADO;
+				inimigos[i].largura = LARG_HELI;
+				inimigos[i].altura = ALT_HELI;
 				inimigos[i].tipo = HELICOPTERO;
-				inimigos[i].pontos = 30;
+				inimigos[i].pontos = 60;
 				inimigos[i].ativo = true;
 				(*qtd_inimigos)++;
 			}
@@ -153,7 +155,7 @@ void AtualizaMapa(Terreno* terrenos, Combustivel* combustiveis, float velocidade
 	}
 }
 
-void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis)
+void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis, Texture2D sprite_posto)
 {
 	for (int i = 0; i < MAX_TERRENO; i++) {
 		if (terrenos[i].ativo) {
@@ -172,8 +174,7 @@ void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis)
 
 	for (int i = 0; i < MAX_COMBUSTIVEL; i++) {
 		if (combustiveis[i].ativo) {
-			DrawRectangle(combustiveis[i].x, combustiveis[i].y, TAMANHO_QUADRADO, TAMANHO_QUADRADO, ORANGE);
-			DrawText("F", combustiveis[i].x + 12, combustiveis[i].y + 5, 20, BLACK);
+			DrawTexture(sprite_posto, combustiveis[i].x, combustiveis[i].y, WHITE);
 		}
 	}
 }

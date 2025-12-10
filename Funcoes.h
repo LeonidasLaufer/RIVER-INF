@@ -1,24 +1,29 @@
 #ifndef FUNCOES_H
 #define FUNCOES_H
 
+#include "raylib.h"
 #include <stdbool.h>
 
 #define MAX_RANKING 10
 #define MAX_NOME 8
 
-#define VEL_JOGADOR 7
-#define LARG_JOGADOR 40
-#define ALT_JOGADOR 40
+#define VEL_JOGADOR 4
+#define LARG_JOGADOR 58
+#define ALT_JOGADOR 54
 
-#define LARG_INIMIGO 40
-#define ALT_INIMIGO 40
-#define VEL_INIMIGO 1
+#define LARG_NAVIO 130
+#define ALT_NAVIO 34
+#define LARG_HELI 64
+#define ALT_HELI 40
 #define MAX_INIMIGOS 5 * MAX_FASES_SUPORTADAS
 
 #define LARG_TIRO 5
 #define ALT_TIRO 10
 #define VEL_TIRO 8
-#define MAX_TIROS 8
+#define MAX_TIROS 3
+
+#define LARG_POSTO 56
+#define ALT_POSTO 96
 
 #define LARGURA 960
 #define ALTURA 800
@@ -43,12 +48,19 @@ typedef enum {
 	MENU_SAIR
 }MenuOp;
 
+typedef enum {
+	PARADO,
+	DIREITA,
+	ESQUERDA
+}EstadoJogador;
+
 typedef struct {
 	int x;
 	int y;
 	int largura;
 	int altura;
 	int vidas;
+	int combustivel;
 } Jogador;
 
 typedef struct {
@@ -84,15 +96,16 @@ void inicializaTiros(Tiro* tiros);
 void atira(Tiro* tiros, Jogador jogador);
 void atualizaTiros(Tiro* tiros);
 void desenhaTiros(Tiro* tiros);
+void desenhaJogador(Jogador jogador, Texture2D sprite);
 
 void atualizaInimigos(Inimigo* inimigos);
-void desenhaInimigos(Inimigo* inimigos);
+void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_heli);
 
 void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao);
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigos);
-void checaColisoesMapa(Jogador* jogador, Terreno* terrenos);
+void checaColisoesMapa(Jogador* jogador, Terreno* terrenos, Tiro* tiros, Combustivel* posto, int* ac_res, int* pontuacao, bool* ÈPosto);
 
-void desenhaInfo(int pontuacao);
+void desenhaInfo(int pontuacao, Jogador jogador);
 void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool* mostrarTexto, float* tempoDecorrido);
 
 

@@ -1,19 +1,19 @@
 TTTT                TTTT
 TTTT                TTTT
 TTTT      N         TTTT
-TTTT  X       N     TTTT
-TTTT    GGGG        TTTT
+TTTT  X   G     N   TTTT
+TTTT                TTTT
 TTTT                TTTT
 TTTT                TTTT
 TTTT                TTTT
 TTTT      TTT       TTTT
-TTTT  N  TTTTT      TTTT
+TTTT N   TTTTT      TTTT
 TTTT     TTTTT  N   TTTT
 TTTT      TTT       TTTT
 TTTT                TTTT
 TTTT                TTTT
+TTTT       G        TTTT
 TTTT                TTTT
-TTTT     GGGG       TTTT
 TTTTT             TTTTTT
 TTTTTT     A     TTTTTTT
 TTTTTTT         TTTTTTTT

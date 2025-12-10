@@ -12,7 +12,8 @@
 
 int main() {
 
-	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 1 }; //Cria jogador
+	Jogador jogador = { LARGURA / 2, ALTURA / 2 , LARG_JOGADOR, LARG_JOGADOR, 3, 100 }; //Cria jogador
+	EstadoJogador Est_jogador = PARADO;
 	
 	static Tiro tiros[MAX_TIROS]; //Cria array de tiros
 	static Inimigo inimigos[MAX_INIMIGOS];
@@ -44,12 +45,25 @@ int main() {
 	int pontuacao = 0;
 	static PontosJogador ranking[MAX_RANKING]; // Array do ranking
 
+	int ac_combustivel = 0;
+	int ac_vida = 0;
+	int ac_reabastecimento = 0;
+	bool éPosto = false;
+
 	InitWindow(LARGURA, ALTURA, "River-Inf"); //Inicializa janela
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
 
 	const char* listaFases[] = { "fase1.txt", "fase2.txt", "fase3.txt"};
 	int totalFases = sizeof(listaFases) / sizeof(listaFases[0]);
+
+	Texture2D sprite_jog = LoadTexture("Sprites/Jogador.png");
+	Texture2D sprite_jogDir = LoadTexture("Sprites/JogDireita.png");
+	Texture2D sprite_jogEsq = LoadTexture("Sprites/JogEsquerda.png");
+	Texture2D sprite_nav = LoadTexture("Sprites/Navio.png");
+	Texture2D sprite_heli = LoadTexture("Sprites/Helicoptero.png");
+	Texture2D sprite_posto = LoadTexture("Sprites/Posto.png");
+	
 
 	InicializarEntidades(inimigos, terrenos, combustiveis);
 
@@ -110,14 +124,32 @@ int main() {
 
 		case EST_JOGO:
 
+			if (!éPosto)
+			{
+				ac_combustivel += velocidadeCenario;
+				if (ac_combustivel >= 20)
+				{
+					jogador.combustivel--;
+					ac_combustivel = 0;
+				}
+			}
+			
+			ac_vida = pontuacao;
+			if (ac_vida >= 1000)
+			{
+				jogador.vidas++;
+				ac_vida = 0;
+			}
+
 			atualizaTiros(tiros); // Atualiza posição e estado dos tiros a cada iteração
 			atualizaInimigos(inimigos); // Atualiza posição e estado dos inimigos a cada iteração
 			
+
 			AtualizaMapa(terrenos, combustiveis, velocidadeCenario);
 
 			checaColisoesTiro(tiros, inimigos, &pontuacao); // Checa colisões entre tiros e inimigos
 			checaColisoesJogador(&jogador, inimigos); // Checa colisões entre jogador e inimigos
-			checaColisoesMapa(&jogador, terrenos); // Checa colisões entre jogador e mapa
+			checaColisoesMapa(&jogador, terrenos, tiros, combustiveis, &ac_reabastecimento, &pontuacao, &éPosto); // Checa colisões entre jogador e mapa
 
 
 			if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) // Movimento para a direita
@@ -127,6 +159,7 @@ int main() {
 				{
 					jogador.x = LARGURA - jogador.largura;
 				}
+				Est_jogador = DIREITA;
 			}
 			else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) // Movimento para a esquerda
 			{
@@ -135,6 +168,11 @@ int main() {
 				{
 					jogador.x = 0;
 				}
+				Est_jogador = ESQUERDA;
+			}
+			else
+			{
+				Est_jogador = PARADO;
 			}
 
 			if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_K)) // Se barra de espaço ou K for pressionado
@@ -151,12 +189,25 @@ int main() {
 			BeginDrawing();
 			ClearBackground(BLUE);
 
-			DesenhaMapa(terrenos, combustiveis);
+			DesenhaMapa(terrenos, combustiveis, sprite_posto);
 
-			DrawRectangle(jogador.x, jogador.y, jogador.largura, jogador.altura, YELLOW); //Desenha o jogador na tela
+			switch (Est_jogador)
+			{
+			case PARADO:
+				desenhaJogador(jogador, sprite_jog);
+				break;
+			case DIREITA:
+				desenhaJogador(jogador, sprite_jogDir);
+				break;
+			case ESQUERDA:
+				desenhaJogador(jogador, sprite_jogEsq);
+				break;
+			default:
+				break;
+			}
 			desenhaTiros(tiros); // Desenha o tiro na tela
-			desenhaInimigos(inimigos); // Desenha os inimigos na tela
-			desenhaInfo(pontuacao); // Desenha a pontuação na tela
+			desenhaInimigos(inimigos, sprite_nav, sprite_heli); // Desenha os inimigos na tela
+			desenhaInfo(pontuacao, jogador); // Desenha a pontuação na tela
 
 			EndDrawing();
 			break;
@@ -267,6 +318,14 @@ int main() {
 		
 
 	}
+
+	UnloadTexture(sprite_jog);
+	UnloadTexture(sprite_nav);
+	UnloadTexture(sprite_heli);
+	UnloadTexture(sprite_posto);
+	UnloadTexture(sprite_jogDir);
+	UnloadTexture(sprite_jogEsq);
+
 	CloseWindow(); // Fecha a janela
 	return 0;
 }

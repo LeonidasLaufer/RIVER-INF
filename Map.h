@@ -20,6 +20,7 @@ typedef struct Terreno {
 	float y;
 	bool ativo;
 	bool destrutivel;
+	int pontos;
 } Terreno;
 
 typedef struct Combustivel {
@@ -30,7 +31,7 @@ typedef struct Combustivel {
 
 void InicializarEntidades(Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis);
 void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos, int* qtd_inimigos, Terreno* terrenos, int* qtd_terrenos, Combustivel* combustiveis, int* qtd_combustiveis, float desvioY);
-void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis);
+void DesenhaMapa(Terreno* terrenos, Combustivel* combustiveis, Texture2D sprite_posto);
 void AtualizaMapa(Terreno* terrenos, Combustivel* combustiveis, float velocidade);
 
 #endif

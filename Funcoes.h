@@ -83,6 +83,7 @@ typedef struct {
 	int altura;
 	int pontos;
 	bool ativo;
+	int velX;
 } Inimigo;
 
 typedef struct Terreno Terreno;
@@ -99,8 +100,8 @@ void atualizaTiros(Tiro* tiros);
 void desenhaTiros(Tiro* tiros);
 void desenhaJogador(Jogador jogador, Texture2D sprite);
 
-void atualizaInimigos(Inimigo* inimigos);
-void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_heli);
+void atualizaInimigos(Inimigo* inimigos, Jogador jogador, Terreno* terrenos);
+void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_navDir, Texture2D sprite_navEsq, Texture2D sprite_heliDir, Texture2D sprite_heliEsq);
 
 void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao, Sound s_explo);
 void checaColisoesJogador(Jogador* jogador, Inimigo* inimigos);

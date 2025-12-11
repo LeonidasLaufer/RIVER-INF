@@ -98,6 +98,7 @@ void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos
 				inimigos[i].tipo = NAVIO;
 				inimigos[i].pontos = 30;
 				inimigos[i].ativo = true;
+				inimigos[i].velX = 2;
 				(*qtd_inimigos)++;
 			}
 			break;
@@ -112,6 +113,7 @@ void CarregarTrechoMapa(const char* arquivo, Jogador* jogador, Inimigo* inimigos
 				inimigos[i].tipo = HELICOPTERO;
 				inimigos[i].pontos = 60;
 				inimigos[i].ativo = true;
+				inimigos[i].velX = 3;
 				(*qtd_inimigos)++;
 			}
 			break;

@@ -61,8 +61,10 @@ int main() {
 	Texture2D sprite_jog = LoadTexture("Sprites/Jogador.png");
 	Texture2D sprite_jogDir = LoadTexture("Sprites/JogDireita.png");
 	Texture2D sprite_jogEsq = LoadTexture("Sprites/JogEsquerda.png");
-	Texture2D sprite_nav = LoadTexture("Sprites/Navio.png");
-	Texture2D sprite_heli = LoadTexture("Sprites/Helicoptero.png");
+	Texture2D sprite_navDir = LoadTexture("Sprites/NavioDireita.png");
+	Texture2D sprite_navEsq = LoadTexture("Sprites/NavioEsquerda.png");
+	Texture2D sprite_heliDir = LoadTexture("Sprites/HelicopteroDireita.png");
+	Texture2D sprite_heliEsq = LoadTexture("Sprites/HelicopteroEsquerda.png");
 	Texture2D sprite_posto = LoadTexture("Sprites/Posto.png");
 
 	Sound s_tiro = LoadSound("Sons/tiro.mp3");
@@ -157,7 +159,7 @@ int main() {
 			}
 
 			atualizaTiros(tiros); // Atualiza posição e estado dos tiros a cada iteração
-			atualizaInimigos(inimigos); // Atualiza posição e estado dos inimigos a cada iteração
+			atualizaInimigos(inimigos, jogador, terrenos); // Atualiza posição e estado dos inimigos a cada iteração
 			
 
 			AtualizaMapa(terrenos, combustiveis, velocidadeCenario);
@@ -226,7 +228,7 @@ int main() {
 				break;
 			}
 			desenhaTiros(tiros); // Desenha o tiro na tela
-			desenhaInimigos(inimigos, sprite_nav, sprite_heli); // Desenha os inimigos na tela
+			desenhaInimigos(inimigos, sprite_navDir, sprite_navEsq, sprite_heliDir, sprite_heliEsq); // Desenha os inimigos na tela
 			desenhaInfo(pontuacao, jogador); // Desenha a pontuação na tela
 
 			EndDrawing();
@@ -430,8 +432,10 @@ int main() {
 	}
 
 	UnloadTexture(sprite_jog);
-	UnloadTexture(sprite_nav);
-	UnloadTexture(sprite_heli);
+	UnloadTexture(sprite_navDir);
+	UnloadTexture(sprite_navEsq);
+	UnloadTexture(sprite_heliDir);
+	UnloadTexture(sprite_heliEsq);
 	UnloadTexture(sprite_posto);
 	UnloadTexture(sprite_jogDir);
 	UnloadTexture(sprite_jogEsq);

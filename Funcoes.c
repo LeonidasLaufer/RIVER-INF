@@ -113,7 +113,7 @@
 
 
 
-	void atualizaInimigos(Inimigo* inimigos)
+	void atualizaInimigos(Inimigo* inimigos, Jogador jogador, Terreno* terrenos)
 	{
 
 		float velocidadeinimigo = 2.0f;
@@ -122,6 +122,38 @@
 		{
 			if (inimigos[i].ativo){
 				inimigos[i].y += velocidadeinimigo;
+				bool mover = false;
+				if (inimigos[i].tipo == NAVIO) {
+					mover = true;
+				}
+				else if (inimigos[i].tipo == HELICOPTERO) {
+					if (fabs(inimigos[i].y - jogador.y) < 300) {
+						mover = true;
+					}
+				}
+				if (mover) {
+					inimigos[i].x += inimigos[i].velX;
+					Rectangle r_inimigo = { inimigos[i].x, inimigos[i].y, inimigos[i].largura, inimigos[i].altura };
+					bool colide = false;
+					if (inimigos[i].x <= 0 || inimigos[i].x + inimigos[i].largura >= LARGURA) {
+						colide = true;
+					}
+					if (!colide) {
+						for (int t = 0; t < MAX_TERRENO; t++) {
+							if (terrenos[t].ativo && abs(terrenos[t].y - inimigos[i].y) < 100) {
+								Rectangle r_terreno = { terrenos[t].x, terrenos[t].y, TAMANHO_QUADRADO, TAMANHO_QUADRADO };
+								if (CheckCollisionRecs(r_inimigo, r_terreno)) {
+									colide = true;
+									break;
+								}
+							}
+						}
+					}
+					if(colide) {
+						inimigos[i].x -= inimigos[i].velX;
+						inimigos[i].velX *= -1;
+							}
+				}
 				if (inimigos[i].y > ALTURA + 100) {
 					inimigos[i].ativo = false;
 				}
@@ -130,7 +162,7 @@
 		return;
 	}
 
-	void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_nav, Texture2D sprite_heli)
+	void desenhaInimigos(Inimigo* inimigos, Texture2D sprite_navDir, Texture2D sprite_navEsq, Texture2D sprite_heliDir, Texture2D sprite_heliEsq)
 	{
 		for (int i = 0; i < MAX_INIMIGOS; i++)
 		{
@@ -139,11 +171,17 @@
 				switch (inimigos[i].tipo)
 				{
 				case NAVIO:
-					DrawTexture(sprite_nav, inimigos[i].x, inimigos[i].y, WHITE); // Desenha navio
+					if (inimigos[i].velX > 0)
+						DrawTexture(sprite_navDir, inimigos[i].x, inimigos[i].y, WHITE);
+					else
+						DrawTexture(sprite_navEsq, inimigos[i].x, inimigos[i].y, WHITE);
 					break;
 				case HELICOPTERO:
-					DrawTexture(sprite_heli, inimigos[i].x, inimigos[i].y, WHITE); // Desenha helicoptero
-					break;
+					if(inimigos[i].velX > 0)
+						DrawTexture(sprite_heliDir, inimigos[i].x, inimigos[i].y, WHITE);
+					else
+					DrawTexture(sprite_heliEsq, inimigos[i].x, inimigos[i].y, WHITE);
+			break;
 				default:
 					break;
 				}

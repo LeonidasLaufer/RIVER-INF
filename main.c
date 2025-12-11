@@ -51,6 +51,7 @@ int main() {
 	bool ÈPosto = false;
 
 	InitWindow(LARGURA, ALTURA, "River-Inf"); //Inicializa janela
+	InitAudioDevice();
 	SetTargetFPS(60);// Ajusta a janela para 60 frames por segundo
 	inicializaTiros(tiros); // Inicializa tiros como inativos
 
@@ -63,7 +64,16 @@ int main() {
 	Texture2D sprite_nav = LoadTexture("Sprites/Navio.png");
 	Texture2D sprite_heli = LoadTexture("Sprites/Helicoptero.png");
 	Texture2D sprite_posto = LoadTexture("Sprites/Posto.png");
-	
+
+	Sound s_tiro = LoadSound("Sons/tiro.mp3");
+	Sound s_explo = LoadSound("Sons/explosao.mp3");
+	Sound s_sucesso = LoadSound("Sons/sucesso.mp3");
+	Sound s_falha = LoadSound("Sons/falha.mp3");
+
+	Music s_aviao = LoadMusicStream("Sons/aviao.mp3");
+	SetMusicVolume(s_aviao, 0.5f);
+
+	bool somTocado = false;
 
 	InicializarEntidades(inimigos, terrenos, combustiveis);
 
@@ -126,7 +136,10 @@ int main() {
 
 
 		case EST_JOGO:
-
+			if (!IsMusicStreamPlaying(s_aviao)) {
+				PlayMusicStream(s_aviao);
+			}
+			UpdateMusicStream(s_aviao);
 			if (!ÈPosto)
 			{
 				ac_combustivel += velocidadeCenario;
@@ -149,7 +162,7 @@ int main() {
 
 			AtualizaMapa(terrenos, combustiveis, velocidadeCenario);
 
-			checaColisoesTiro(tiros, inimigos, &pontuacao); // Checa colisıes entre tiros e inimigos
+			checaColisoesTiro(tiros, inimigos, &pontuacao, s_explo); // Checa colisıes entre tiros e inimigos
 			checaColisoesJogador(&jogador, inimigos); // Checa colisıes entre jogador e inimigos
 			checaColisoesMapa(&jogador, terrenos, tiros, combustiveis, &ac_reabastecimento, &pontuacao, &ÈPosto, &vitoriaDetectada); // Checa colisıes entre jogador e mapa
 
@@ -178,17 +191,19 @@ int main() {
 
 			if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_K)) // Se barra de espaÁo ou K for pressionado
 			{
-				atira(tiros, jogador); // Atira
+				atira(tiros, jogador, s_tiro); // Atira
 			}
 
 			if (jogador.vidas == 0 || jogador.combustivel <= 0) // Caso jogador fique sem vidas
 			{
 				Estado = EST_MORTE; // Muda estado para Morte
+				StopMusicStream(s_aviao);
 			}
 
 			if (vitoriaDetectada)
 			{
 				Estado = EST_VITORIA;
+				StopMusicStream(s_aviao);
 			}
 
 			BeginDrawing();
@@ -218,6 +233,13 @@ int main() {
 			break;
 
 		case EST_MORTE: // Caso jogador tenha morrido
+			StopMusicStream(s_aviao);
+			if (!somTocado)
+			{
+				PlaySound(s_falha);
+				somTocado = true;
+			}
+
 			if (!inserirRanking) // Checa se jogador pode ser inserido nor ranking
 			{
 				if (IsKeyPressed(KEY_ENTER))
@@ -229,7 +251,7 @@ int main() {
 					else
 					{
 						M_op = MENU_NOVO_JOGO;
-						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador, &somTocado);
 						ac_vida = 1000;
 						Estado = EST_MENU;
 					}
@@ -244,7 +266,7 @@ int main() {
 
 				while (tecla > 0 && letras < MAX_NOME)
 				{
-					if ((tecla >= 32) && (tecla <= 125)) // Verifica se o caractere È imprimÌvel
+					if (isalpha(tecla)) // Verifica se o caractere È uma letra
 					{
 						nomeJogador[letras] = toupper((char)tecla); // Adiciona caractere ao nome do jogador
 						letras++;
@@ -266,7 +288,7 @@ int main() {
 				{
 					AtualizaPosRank(pontuacao, ranking, nomeJogador);
 					salvaRanking(ranking);
-					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador); 
+					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador, &somTocado); 
 					ac_vida = 1000;
 					Estado = EST_RANKING;
 				}
@@ -289,8 +311,8 @@ int main() {
 				larguraTexto = MeasureText("Pressione ENTER para confirmar", 30);
 				DrawText("Pressione ENTER para confirmar", (LARGURA - larguraTexto) / 2, ((ALTURA - 40) / 2) + 300, 30, RAYWHITE);
 
-				larguraTexto = MeasureText(TextFormat("Chars: %d/%d", letras, MAX_NOME), 20);
-				DrawText(TextFormat("Chars: %d/%d", letras, MAX_NOME), (LARGURA - larguraTexto) / 2, ((ALTURA - 20) / 2) + 80, 20, RAYWHITE);
+				larguraTexto = MeasureText(TextFormat("Caracteres: %d/%d", letras, MAX_NOME), 20);
+				DrawText(TextFormat("Caracteres: %d/%d", letras, MAX_NOME), (LARGURA - larguraTexto) / 2, ((ALTURA - 20) / 2) + 80, 20, RAYWHITE);
 
 				EndDrawing();
 
@@ -299,6 +321,12 @@ int main() {
 			break;
 
 		case EST_VITORIA:
+			if (!somTocado)
+			{
+				PlaySound(s_sucesso);
+				somTocado = true;
+			}
+
 			if (!inserirRanking)
 			{
 				if (IsKeyPressed(KEY_ENTER))
@@ -310,7 +338,7 @@ int main() {
 					else
 					{
 						M_op = MENU_NOVO_JOGO;
-						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+						resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador, &somTocado);
 						ac_vida = 1000;
 						Estado = EST_MENU;
 					}
@@ -324,7 +352,7 @@ int main() {
 				int tecla = GetCharPressed();
 				while (tecla > 0 && letras < MAX_NOME)
 				{
-					if ((tecla >= 32) && (tecla <= 125))
+					if (isalpha(tecla))
 					{
 						nomeJogador[letras] = toupper((char)tecla);
 						letras++;
@@ -343,7 +371,7 @@ int main() {
 				{
 					AtualizaPosRank(pontuacao, ranking, nomeJogador);
 					salvaRanking(ranking);
-					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador);
+					resetaJogo(&jogador, tiros, inimigos, terrenos, combustiveis, &pontuacao, &letras, nomeJogador, &somTocado);
 					ac_vida = 1000;
 					Estado = EST_RANKING;
 				}
@@ -363,6 +391,9 @@ int main() {
 
 				larguraTexto = MeasureText("Pressione ENTER para confirmar", 30);
 				DrawText("Pressione ENTER para confirmar", (LARGURA - larguraTexto) / 2, ((ALTURA - 40) / 2) + 300, 30, RAYWHITE);
+
+				larguraTexto = MeasureText(TextFormat("Caracteres: %d/%d", letras, MAX_NOME), 20);
+				DrawText(TextFormat("Caracteres: %d/%d", letras, MAX_NOME), (LARGURA - larguraTexto) / 2, ((ALTURA - 20) / 2) + 80, 20, RAYWHITE);
 
 				EndDrawing();
 			}
@@ -404,6 +435,13 @@ int main() {
 	UnloadTexture(sprite_posto);
 	UnloadTexture(sprite_jogDir);
 	UnloadTexture(sprite_jogEsq);
+
+	UnloadSound(s_explo);
+	UnloadSound(s_falha);
+	UnloadSound(s_sucesso);
+	UnloadSound(s_tiro);
+
+	UnloadMusicStream(s_aviao);
 
 	CloseWindow(); // Fecha a janela
 	return 0;

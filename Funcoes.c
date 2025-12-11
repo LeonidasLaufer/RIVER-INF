@@ -67,7 +67,7 @@
 		return;
 	}
 
-	void atira(Tiro* tiros, Jogador jogador)
+	void atira(Tiro* tiros, Jogador jogador, Sound s_tiro)
 	{
 		for (int i = 0; i < MAX_TIROS; i++)
 		{
@@ -76,6 +76,7 @@
 				tiros[i].ativo = true; // Ativa tiro
 				tiros[i].x = jogador.x - LARG_TIRO / 2 + LARG_JOGADOR / 2; // Centraliza tiro com jogador
 				tiros[i].y = jogador.y - ALT_JOGADOR / 2; // Ajusta altura para sair acima do jogador
+				PlaySound(s_tiro);
 				break;
 			}
 		}
@@ -156,7 +157,7 @@
 		DrawTexture(sprite, jogador.x, jogador.y, WHITE);
 	}
 
-	void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao)
+	void checaColisoesTiro(Tiro* tiros, Inimigo* inimigos, int *pontuacao, Sound s_explo)
 	{
 		for (int i = 0; i < MAX_TIROS; i++)
 		{
@@ -174,6 +175,8 @@
 							inimigos[j].ativo = false; // Desativa ambos caso haja colisao
 
 							*pontuacao += inimigos[j].pontos; // Adiciona pontos à pontuação
+
+							PlaySound(s_explo);
 
 							break;
 						}
@@ -275,9 +278,9 @@
 	void desenhaTelaMorte(int pontuacao, PontosJogador* ranking, float intervalo, bool *mostrarTexto, float *tempoDecorrido)
 	{
 		ClearBackground(BLACK);
-		int larguraTexto = MeasureText("SE FODEU", 80);
+		int larguraTexto = MeasureText("MORREU", 80);
 
-		DrawText("SE FODEU", (LARGURA - larguraTexto) / 2, (ALTURA - 80) / 2, 80, RED); // Desenha tela de morte
+		DrawText("MORREU", (LARGURA - larguraTexto) / 2, (ALTURA - 80) / 2, 80, RED); // Desenha tela de morte
 
 		if (pontuacao > ranking[MAX_RANKING - 1].pontos) // Verifica se a pontuação é maior que a menor do ranking
 		{
@@ -286,9 +289,12 @@
 			larguraTexto = MeasureText("NOVO RECORDE!", 50);
 			if (*mostrarTexto)
 			{
-				DrawText("NOVO RECORDE!", (LARGURA - larguraTexto) / 2, (ALTURA - 50) / 2 - 100, 50, GOLD); // Desen ha mensagem de novo recorde
+				DrawText("NOVO RECORDE!", (LARGURA - larguraTexto) / 2, (ALTURA - 50) / 2 - 100, 50, GOLD); // Desenha mensagem de novo recorde
 			}
 		}
+
+		DrawText(TextFormat("Score: %d", pontuacao), 10, 10, 40, GOLD);
+
 		larguraTexto = MeasureText("Pressione ENTER para continuar", 30);
 
 		DrawText("Pressione ENTER para continuar", (LARGURA - larguraTexto) / 2, (ALTURA - 30) / 2 + 80, 30, WHITE); // Instrução para sair
@@ -333,10 +339,12 @@
 		}
 	}
 
-	void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome)
+	void resetaJogo(Jogador* jogador, Tiro* tiros, Inimigo* inimigos, Terreno* terrenos, Combustivel* combustiveis, int* pontuacao, int* letras, char* nome, bool* somTocado)
 	{
 		jogador->vidas = 3;
 		jogador->combustivel = 100;
+		
+		*somTocado = false;
 
 		inicializaTiros(tiros); // Reinicializa tiros
 
@@ -490,6 +498,7 @@
 				DrawText("NOVO RECORDE!", (LARGURA - larguraTexto) / 2, (ALTURA - 50) / 2 - 100, 50, GOLD); // Desenha mensagem de novo recorde
 			}
 		}
-			DrawText("Pressione ENTER para continuar", (LARGURA - larguraTexto) / 2, (ALTURA - 30) / 2 + 80, 30, WHITE); // Instrução para sair
+		DrawText(TextFormat("Score: %d", pontuacao), 10, 10, 40, GOLD);
+		DrawText("Pressione ENTER para continuar", (LARGURA - larguraTexto) / 2, (ALTURA - 30) / 2 + 80, 30, WHITE); // Instrução para sair
 		return;
 	}

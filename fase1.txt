@@ -1,14 +1,14 @@
 TTTT                TTTT
 TTTT                TTTT
 TTTT       N        TTTT
-TTTT  X         X   TTTT
+TTTT X              TTTT
 TTTT                TTTT
 TTTT                TTTT
 TTTT  G             TTTT
 TTTT                TTTT
 TTTT      TTT       TTTT
 TTTT     TTTTT      TTTT
-TTTT N   TTTTT   N  TTTT
+TTTT N   TTTTT  N   TTTT
 TTTT      TTT       TTTT
 TTTT                TTTT
 TTTT                TTTT
